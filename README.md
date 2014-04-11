@@ -1,9 +1,5 @@
 ## Status
-
-Unfortunately, I don't have much time to work on this gem, I'm looking for
-someone to help with its maintenance. Send me an email if you are interested in
-getting push privileges to this repo.
-
+I forked this project because I needed ability to customize searching a little bit.  You can now send a :where => option with 1 scope, that scope will get the search string.  This only works on activerecord as well....
 
 # rails4-autocomplete
 
