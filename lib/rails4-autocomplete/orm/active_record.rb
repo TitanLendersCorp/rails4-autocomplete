@@ -27,7 +27,7 @@ module Rails4Autocomplete
         if(!defined?(where) || where.nil? || where.blank?)
           items = items.where(get_autocomplete_where_clause(model, term, method, options)).limit(limit).order(order)
         else
-          items = items.send(where, [term]).limit(limit).order(order)
+          items = items.send(where, term).limit(limit).order(order)
         end
 
         items
