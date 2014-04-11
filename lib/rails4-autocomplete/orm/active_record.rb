@@ -40,7 +40,17 @@ module Rails4Autocomplete
         table_name = model.table_name
         is_full_search = options[:full]
         like_clause = (postgres?(model) ? 'ILIKE' : 'LIKE')
-        ["LOWER(#{table_name}.#{method}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
+        if(method.kind_of?(Array))
+          metho = method.first
+          whereString = "LOWER(#{table_name}.#{metho}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"
+          method.each_with_index do |metho,index|
+            next if index == 0
+            whereString += "OR LOWER(#{table_name}.#{metho}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"
+          end
+          return [whereString]
+        else
+          return ["LOWER(#{table_name}.#{method}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
+        end
       end
 
       def postgres?(model)
