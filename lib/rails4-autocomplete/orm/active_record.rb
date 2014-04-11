@@ -24,9 +24,11 @@ module Rails4Autocomplete
         scopes.each { |scope| items = items.send(scope) } unless scopes.empty?
 
         items = items.select(get_autocomplete_select_clause(model, method, options)) unless options[:full_model]
-        items = items.where(get_autocomplete_where_clause(model, term, method, options)).
-            limit(limit).order(order)
-        items = items.where(where) unless where.blank?
+        if(where.blank?)
+          items = items.where(get_autocomplete_where_clause(model, term, method, options)).limit(limit).order(order)
+        else
+          items = items.where(where).limit(limit).order(order)
+        end
 
         items
       end
@@ -39,18 +41,8 @@ module Rails4Autocomplete
       def get_autocomplete_where_clause(model, term, method, options)
         table_name = model.table_name
         is_full_search = options[:full]
-        like_clause = (postgres?(model) ? 'ILIKE' : 'LIKE')
-        if(method.kind_of?(Array))
-          metho = method.first
-          whereString = "LOWER(#{table_name}.#{metho}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"
-          method.each_with_index do |metho,index|
-            next if index == 0
-            whereString += "OR LOWER(#{table_name}.#{metho}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"
-          end
-          return [whereString]
-        else
-          return ["LOWER(#{table_name}.#{method}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
-        end
+        like_clause = (postgres?(model) ? 'ILIKE' : 'LIKE')  
+        ["LOWER(#{table_name}.#{method}) #{like_clause} ?", "#{(is_full_search ? '%' : '')}#{term.downcase}%"]
       end
 
       def postgres?(model)
